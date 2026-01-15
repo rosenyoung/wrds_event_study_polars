@@ -7,7 +7,7 @@ Several minor issues in the original implementation have been fixed, and additio
 
 ## Overview
 
-This package allows users to run **event studies using locally stored data in Parquet format**, rather than querying WRDS directly. It also supports **Fama–French 5-factor models**.
+This package allows users to run **event studies using locally stored data in Parquet format**, rather than querying WRDS directly. It also supports **Fama–French 5-factor models with momentum**.
 
 In local testing (Intel i9-12900K, 64GB RAM), the package completes an event study with approximately **10,000 events in about 71 seconds**, compared to roughly **7 minutes when running the same task on WRDS**.
 
@@ -43,7 +43,7 @@ es = EventStudy()
 
 results = es.eventstudy(
     data=evt_date,
-    model='ffm',   # options: 'madj', 'm', 'ff', 'ffm', 'ff5
+    model='ffm',   # options: 'madj', 'm', 'ff', 'ffm', 'ff5'
     estwin=250,
     evtwins=-10,
     evtwine=10,
