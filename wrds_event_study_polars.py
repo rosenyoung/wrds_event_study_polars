@@ -5,7 +5,6 @@
 
 # source code: # https://wrds-www.wharton.upenn.edu/pages/wrds-research/applications/python-replications/programming-python-wrds-event-study/
 import os
-import json
 import polars as pl
 import numpy as np
 from statsmodels.api import OLS, add_constant
@@ -165,6 +164,8 @@ class EventStudy:
                 elif model == 'ffm':
                     X = add_constant(est_pd[['mktrf','smb','hml','umd']])
                 elif model == 'ff5':
+                    X = add_constant(est_pd[['mktrf','smbf5','hmlf5','rmw','cma']])
+                elif model == 'ff5m':
                     X = add_constant(est_pd[['mktrf','smbf5','hmlf5','rmw','cma','umdf5']])
                 res = OLS(y, X).fit()
                 params = res.params.to_dict()
