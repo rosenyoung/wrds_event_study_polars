@@ -138,8 +138,13 @@ class EventStudy:
             est = grp.filter(col('isest') == 1)
             evt = grp.filter(col('isevt') == 1)
 
-            if est.height < minval or evt.height != evtrang or evt.filter(col('evtflag') == 1).height < 1:
-                return pl.DataFrame()
+            if evtwine <0:
+                if est.height < minval or evt.height != evtrang:
+                # Drop the condition  "or evt.filter(col('evtflag') == 1).height < 1" to allow event windows before event date
+                    return pl.DataFrame()
+            elif evtwine >=0:
+                if est.height < minval or evt.filter(col('evtflag') == 1).height < 1 or evt.height != evtrang:
+                    return pl.DataFrame()
 
             alpha = 0.0
             rmse = 1.0
