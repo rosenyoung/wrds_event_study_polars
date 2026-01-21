@@ -11,6 +11,7 @@ from statsmodels.api import OLS, add_constant
 import duckdb as db
 from polars import col
 from tqdm import tqdm
+import warnings
 
 # Modify paths as needed
 input_dir = "D:/DataBase/wrds"
@@ -33,11 +34,13 @@ class EventStudy:
                    evtwine=10,
                    minval=100,
                    output='df'):
-
-        estwins = estwin + gap + abs(evtwins)
-        estwine = gap + abs(evtwins) + 1
-        evtwins = abs(evtwins)
-        evtrang = abs(evtwins) + evtwine + 1
+        # Do not use absolute values for evtwins and evtwine to support event windows fully before or after event date
+        if evtwins > evtwine:
+            raise ValueError("evtwins should be less than or equal to evtwine.")
+        estwins = estwin + gap - evtwins
+        estwine = gap - evtwins + 1
+        evtrang = evtwine - evtwins + 1
+        evtwins = -evtwins
         evtwinx = estwins + 1
 
         evts = data
@@ -138,13 +141,10 @@ class EventStudy:
             est = grp.filter(col('isest') == 1)
             evt = grp.filter(col('isevt') == 1)
 
-            if evtwine <0:
-                if est.height < minval or evt.height != evtrang:
-                # Drop the condition  "or evt.filter(col('evtflag') == 1).height < 1" to allow event windows before event date
-                    return pl.DataFrame()
-            elif evtwine >=0:
-                if est.height < minval or evt.filter(col('evtflag') == 1).height < 1 or evt.height != evtrang:
-                    return pl.DataFrame()
+
+            if est.height < minval or evt.height != evtrang:
+                # Drop the condition  "or evt.filter(col('evtflag') == 1).height < 1" to allow event windows fully before or after event date
+                return pl.DataFrame()
 
             alpha = 0.0
             rmse = 1.0
